@@ -136,6 +136,10 @@ class Frame:
     def get_home_color(self):
         return [34, 44, 51]
     
+    def create_label_list(self):
+        label_list = []
+        
+    
     def home(self):
         screen = self.get_screen_size()
         
