@@ -1,10 +1,10 @@
 try:        
     import sys
-    sys.path.insert(1, '/Applications/MAMP/htdocs/Time-Boxing-AI/Database/')           
+    sys.path.insert(1, '/Applications/XAMPP/xamppfiles/htdocs/Database/Time-Boxing-AI')           
+    from db import Db
 except:
     print("Issue Getting Database File")
-else:    
-    from db import Db
+else:        
     print("Imported File Successfully")
     
 conn = Db().connect()
