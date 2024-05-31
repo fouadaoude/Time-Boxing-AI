@@ -1,9 +1,9 @@
 from window import Window
-from button import Button
 import tkinter as tk
 import time
 import threading
 
+FRAMECOLOR = [43, 66, 82]
 
 class Frame:
     def __init__(self, window):
@@ -54,6 +54,7 @@ class Frame:
             frame.update()      
     
     def fade_in_frame(self, frame, in_color=None, out_color=None):        
+        
         while True:
             print("in", in_color, "out", out_color)
             time.sleep(0.01)
@@ -80,12 +81,43 @@ class Frame:
             
             frame.update()
     
+    # in_color is the current color of the frame and out_color is the desired color to be faded into
+    def fade_out_frame(self, frame, in_color=None, out_color=None, destroy=False):
+        while True:
+            if out_color[0] == in_color[0] and out_color[1] == in_color[1] and out_color[2] == in_color[2]:
+               break 
+           
+            #time.sleep(0.000001)            
+           
+            frame.config(bg="#%02x%02x%02x" % (in_color[0], in_color[1], in_color[2]))
+            
+            if in_color[0] < out_color[0]:
+                in_color[0]+=1
+            elif in_color[0] > out_color[0]:
+                in_color[0]-=1
+            
+            if in_color[1] < out_color[1]:
+                in_color[1]+=1
+            elif in_color[1] > out_color[1]:
+                in_color[1]-=1
+                
+            if in_color[2] < out_color[2]:
+                in_color[2]+=1
+            elif in_color[2] > out_color[2]:
+                in_color[2]-=1
+            
+            frame.update()
+    
+    # Destroys frames
+    def destroy(self, frame):
+        frame.destroy()
+    
     def fade_in_out(self, label, in_color=None, out_color=None, frame=None, forever=False):
         in_color_list = str(in_color)
         out_color_list = str(out_color)       
 
         while True:
-            print(in_color, out_color)
+            
             self.fade_label(label, in_color, out_color, frame, forever)
             
             if forever == False:
@@ -96,11 +128,11 @@ class Frame:
                     in_color_list[x] = int(in_color_list[x])
                     out_color_list[x] = int(out_color_list[x])
                 
-            print(in_color, out_color)
+        
             if forever:
                 out_color = self.get_home_color()
                 in_color = [255,255,255]
-            print(in_color, out_color, "SADASD")
+            
             self.fade_label(label, out_color, in_color, frame, forever)
         
             if forever == False:    
@@ -138,24 +170,34 @@ class Frame:
     
     def create_label_list(self):
         label_list = []
-        
+    
+    def fade_home(self, frame=[], in_color=None, out_color=None):
+        print("FRAME", frame[1])
+        for x in frame:
+            print(x)
+            self.fade_out_frame(x, in_color, out_color)    
     
     def home(self):
         screen = self.get_screen_size()
         
+        ## Entire home page frame ##
         home_frame = tk.Frame(self.root, bg='#222c33')                                          
         home_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
         
+        ## Frame for the fading logo ##
         left_frame = tk.Frame(home_frame, bg='#1e2f3b')
+        ## Fades in entire frame on start up ##
         self.fade_in_frame(home_frame, [43, 66, 82], [34, 44, 51])
         left_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
         
         home_design_label = tk.Label(left_frame, text="Time Boxing A.I.", fg='#222c33',bg='#222c33', font=('Helvetica', 40))        
         home_design_label.pack(side='left', fill='both', expand=True) 
-                
+        
+        ## Fades the logo in and out on a loop forever ##
         label_animation = threading.Thread(target=self.fade_in_out, args=(home_design_label,[34, 44, 51], [255,255,255] , left_frame, True))
         label_animation.start()
         
+        ## Frame for schedule options ##
         right_frame = tk.Frame(home_frame, bg='#1e2f3b')
         right_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10)
         
@@ -169,12 +211,34 @@ class Frame:
         time_to_get_better_label = tk.Label(top_right_frame, text="It's Time To Get Better.", fg="white", bg="#1e2f3b", font=('Helvetica', 20))
         time_to_get_better_label.place(relx=0.5, rely=0.5, anchor='center')
         
-        view_schedule_btn = Button(center_right_frame).create(text_var="View My Schedules", bg_color='#1e2f3b', width="30", height="3", font_color='#1e2f3b', font=('Helvetica', 12))
-        create_schedule_btn = Button(center_right_frame).create(text_var="Create Schedule", bg_color='#1e2f3b', width="30", height="3", font_color='#1e2f3b',font=('Helvetica', 12))
+        view_schedule_btn = tk.Button(center_right_frame, text="View My Schedules", compound='c',
+                                        highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
+                                        command=lambda:[self.fade_home([
+                                                        left_frame, right_frame,top_right_frame,
+                                                        center_right_frame, bottom_right_frame, home_frame], 
+                                                                [30, 47, 59], [43, 66, 82]),                                                                                                      
+                                                        #self.fade_out_frame(home_frame, [34, 44, 51], [43, 66, 82]),                                                        
+                                                        Schedule(self.root).view()])
+        create_schedule_btn = tk.Button(center_right_frame, text="Create Schedule", compound='c',
+                                      highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12))        
         
         view_schedule_btn.place(relx=0.5, rely=0.2, anchor='center')
         create_schedule_btn.place(relx=0.5, rely=0.5, anchor='center')
         
+
+class Schedule:
+    def __init__(self, window):
+        self.root = window
+    
+    def day(self):
+        pass
+    
+    def week(self):
+        pass
+    
+    def month(self):
+        pass
         
-        #self.fade_in_frame(right_frame, [34, 44, 51], [30, 47, 59]) 
+    def view(self):
+        print("Click")
         

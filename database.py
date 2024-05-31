@@ -5,6 +5,6 @@ try:
 except:
     print("Issue Getting Database File")
 else:        
-    print("Imported File Successfully")
+    print("Imported Database File Successfully")
     
-conn = Db().connect()
+conn = Db().create()
