@@ -2,12 +2,18 @@ from window import Window
 import tkinter as tk
 import time
 import threading
+import os
 
 FRAMECOLOR = [43, 66, 82]
 
-class Frame:
-    def __init__(self, window):
-        self.root = window
+# command = lambda : controller.show_frame(Page2))
+
+class StartPage(tk.Frame):
+    def __init__(self, parent, controller): 
+        tk.Frame.__init__(self, parent)
+        
+        self.controller = controller
+        self.home()
     
     def fade_label(self, label, current_color=None, rgb=None, frame=None, forever=False):
         original_rgb = self.get_home_color()
@@ -17,8 +23,8 @@ class Frame:
         
         while True:
             time.sleep(0.000000000000001)
-            # create increasingly paler gray colors
-            label.config(fg="#%02x%02x%02x" % (current_color[0],current_color[1] , current_color[2]))
+            # create increasingly paler gray colors     
+            label.config(fg="#%02x%02x%02x" % (current_color[0],current_color[1] , current_color[2]))       
             if r == current_color[0] and g == current_color[1] and b == current_color[2]:
                 if forever:
                     while True:
@@ -56,12 +62,10 @@ class Frame:
     def fade_in_frame(self, frame, in_color=None, out_color=None):        
         
         while True:
-            print("in", in_color, "out", out_color)
             time.sleep(0.01)
             # create increasingly paler gray colors
             frame.config(bg="#%02x%02x%02x" % (in_color[0],in_color[1] , in_color[2]))
             if out_color[0] == in_color[0] and out_color[1] == in_color[1] and out_color[2] == in_color[2]:
-               print("BROKE")
                break 
             
             if in_color[0] < out_color[0]:
@@ -83,11 +87,12 @@ class Frame:
     
     # in_color is the current color of the frame and out_color is the desired color to be faded into
     def fade_out_frame(self, frame, in_color=None, out_color=None, destroy=False):
+        self.forever = False
         while True:
             if out_color[0] == in_color[0] and out_color[1] == in_color[1] and out_color[2] == in_color[2]:
                break 
            
-            #time.sleep(0.000001)            
+            time.sleep(0.000001)            
            
             frame.config(bg="#%02x%02x%02x" % (in_color[0], in_color[1], in_color[2]))
             
@@ -108,10 +113,6 @@ class Frame:
             
             frame.update()
     
-    # Destroys frames
-    def destroy(self, frame):
-        frame.destroy()
-    
     def fade_in_out(self, label, in_color=None, out_color=None, frame=None, forever=False):
         in_color_list = str(in_color)
         out_color_list = str(out_color)       
@@ -128,7 +129,6 @@ class Frame:
                     in_color_list[x] = int(in_color_list[x])
                     out_color_list[x] = int(out_color_list[x])
                 
-        
             if forever:
                 out_color = self.get_home_color()
                 in_color = [255,255,255]
@@ -140,7 +140,7 @@ class Frame:
                 break
     
     def welcome(self):
-        frame = tk.Frame(self.root, width=Window(self.root).screen_size()['width']-500, height=Window(self.root).screen_size()['height']-500, bg='#2b4252')
+        frame = tk.Frame(self, width=Window(self).screen_size()['width']-500, height=Window(self).screen_size()['height']-500, bg='#2b4252')
        
         welcome_label = tk.Label(frame, text="Welcome To Time Boxing A.I.", anchor='center', fg='white', bg='#2b4252', font=('Helvetica', 40))
         welcome_label.place(anchor="c", relx=.5, rely=.5)        
@@ -153,15 +153,9 @@ class Frame:
         
         #43, 66, 82
         
-    def get_screen_size(self):
-        width = Window(self.root).screen_size()['width']
-        height = Window(self.root).screen_size()['height']
-        
-        return {'width': width, 'height': height}
-    
     def get_window_size(self):
-        height = self.root.winfo_height()
-        width = self.root.winfo_width()
+        height = self.winfo_height()
+        width = self.winfo_width()
         
         return {'width': width, 'height': height}
     
@@ -172,29 +166,27 @@ class Frame:
         label_list = []
     
     def fade_home(self, frame=[], in_color=None, out_color=None):
-        print("FRAME", frame[1])
         for x in frame:
-            print(x)
             self.fade_out_frame(x, in_color, out_color)    
     
     def home(self):
-        screen = self.get_screen_size()
-        
         ## Entire home page frame ##
-        home_frame = tk.Frame(self.root, bg='#222c33')                                          
+        home_frame = tk.Frame(self, bg='#222c33')                                          
         home_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
-        
+
         ## Frame for the fading logo ##
         left_frame = tk.Frame(home_frame, bg='#1e2f3b')
-        ## Fades in entire frame on start up ##
         self.fade_in_frame(home_frame, [43, 66, 82], [34, 44, 51])
         left_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
+
+        ## Fades in entire frame on start up ##
         
         home_design_label = tk.Label(left_frame, text="Time Boxing A.I.", fg='#222c33',bg='#222c33', font=('Helvetica', 40))        
         home_design_label.pack(side='left', fill='both', expand=True) 
         
+        self.forever = True
         ## Fades the logo in and out on a loop forever ##
-        label_animation = threading.Thread(target=self.fade_in_out, args=(home_design_label,[34, 44, 51], [255,255,255] , left_frame, True))
+        label_animation = threading.Thread(target=self.fade_in_out, args=(home_design_label,[34, 44, 51], [255,255,255] , left_frame, lambda:self.forever))
         label_animation.start()
         
         ## Frame for schedule options ##
@@ -211,14 +203,13 @@ class Frame:
         time_to_get_better_label = tk.Label(top_right_frame, text="It's Time To Get Better.", fg="white", bg="#1e2f3b", font=('Helvetica', 20))
         time_to_get_better_label.place(relx=0.5, rely=0.5, anchor='center')
         
+        frames = [left_frame, right_frame, top_right_frame, center_right_frame, bottom_right_frame, home_frame]
+        
         view_schedule_btn = tk.Button(center_right_frame, text="View My Schedules", compound='c',
                                         highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
-                                        command=lambda:[self.fade_home([
-                                                        left_frame, right_frame,top_right_frame,
-                                                        center_right_frame, bottom_right_frame, home_frame], 
-                                                                [30, 47, 59], [43, 66, 82]),                                                                                                      
-                                                        #self.fade_out_frame(home_frame, [34, 44, 51], [43, 66, 82]),                                                        
-                                                        Schedule(self.root).view()])
+                                        command=lambda:[self.fade_out_frame(home_frame, [34, 44, 51], [43, 66, 82]),  
+                                                        self.controller.change_frame_color(frame='main'),   
+                                                        self.controller.show_frame(Schedule)])                                        
         create_schedule_btn = tk.Button(center_right_frame, text="Create Schedule", compound='c',
                                       highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12))        
         
@@ -226,9 +217,11 @@ class Frame:
         create_schedule_btn.place(relx=0.5, rely=0.5, anchor='center')
         
 
-class Schedule:
-    def __init__(self, window):
-        self.root = window
+class Schedule(tk.Frame):
+    def __init__(self, parent, controller): 
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.view()
     
     def day(self):
         pass
@@ -239,6 +232,9 @@ class Schedule:
     def month(self):
         pass
         
-    def view(self):
-        print("Click")
+    def change_frame_color(self):
+        self.config(background='#222c33')
+        
+    def view(self):        
+        self.change_frame_color()
         
