@@ -10,11 +10,11 @@ class App(tk.Tk):
         
         self.get_primary_screen_size()
         self.title("Time Boxing AI")
+        self.container.configure(background="#2b4252")   
         self.minsize(self.get_primary_screen_size()['width']-300, self.get_primary_screen_size()['height']-200)
         self.geometry("300x300+50+50")  # width x height + x + y
         
-        self.container.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
-        self.container.configure(background="#2b4252")    
+        self.container.pack(side='left', fill='both', expand=True, padx=10, pady=10)         
         
         self.container.grid_rowconfigure(0, weight = 1)
         self.container.grid_columnconfigure(0, weight = 1)
@@ -31,12 +31,14 @@ class App(tk.Tk):
         self.show_frame(StartPage)
             
     def show_frame(self, container):
-        frame = self.frames[container]
+        frame = self.frames[container]         
         frame.tkraise()
                
     def change_frame_color(self, frame='main', color='#2b4252'):
         if frame.lower() == 'main':
             self.config(background=color)
+        elif frame.lower() == 'home':
+            self.container.config(background=color)
       
     def screen_size(self):
         # width, height

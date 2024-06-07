@@ -7,4 +7,4 @@ except:
 else:        
     print("Imported Database File Successfully")
     
-conn = Db().create()
+conn = Db()

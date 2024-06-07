@@ -3,6 +3,7 @@ import tkinter as tk
 import time
 import threading
 import os
+from database import Db
 
 FRAMECOLOR = [43, 66, 82]
 
@@ -12,6 +13,7 @@ class StartPage(tk.Frame):
     def __init__(self, parent, controller): 
         tk.Frame.__init__(self, parent)
         
+        self.parent = parent
         self.controller = controller
         self.home()
     
@@ -169,11 +171,19 @@ class StartPage(tk.Frame):
         for x in frame:
             self.fade_out_frame(x, in_color, out_color)    
     
+    def reset_home_color(self, frame):
+        frame.config(bg='#%02x%02x%02x' % (34, 44, 52))
+        frame.update()
+    
     def home(self):
         ## Entire home page frame ##
         home_frame = tk.Frame(self, bg='#222c33')                                          
         home_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
 
+        home_frame.config(bg='#222c33')
+        
+        #self.reset_home_color(home_frame)
+        
         ## Frame for the fading logo ##
         left_frame = tk.Frame(home_frame, bg='#1e2f3b')
         self.fade_in_frame(home_frame, [43, 66, 82], [34, 44, 51])
@@ -203,13 +213,9 @@ class StartPage(tk.Frame):
         time_to_get_better_label = tk.Label(top_right_frame, text="It's Time To Get Better.", fg="white", bg="#1e2f3b", font=('Helvetica', 20))
         time_to_get_better_label.place(relx=0.5, rely=0.5, anchor='center')
         
-        frames = [left_frame, right_frame, top_right_frame, center_right_frame, bottom_right_frame, home_frame]
-        
         view_schedule_btn = tk.Button(center_right_frame, text="View My Schedules", compound='c',
                                         highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
-                                        command=lambda:[self.fade_out_frame(home_frame, [34, 44, 51], [43, 66, 82]),  
-                                                        self.controller.change_frame_color(frame='main'),   
-                                                        self.controller.show_frame(Schedule)])                                        
+                                        command=lambda:self.controller.show_frame(Schedule))                                        
         create_schedule_btn = tk.Button(center_right_frame, text="Create Schedule", compound='c',
                                       highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12))        
         
@@ -221,6 +227,7 @@ class Schedule(tk.Frame):
     def __init__(self, parent, controller): 
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        self.parent = parent
         self.view()
     
     def day(self):
@@ -234,7 +241,18 @@ class Schedule(tk.Frame):
         
     def change_frame_color(self):
         self.config(background='#222c33')
-        
+    
+    def back_home(self):
+        self.controller.show_frame(StartPage)
+    
     def view(self):        
         self.change_frame_color()
+        
+        back_btn = tk.Button(self.controller, text="Back",highlightcolor='#1e2f3b', width="10", height="2", foreground='#1e2f3b', 
+                             font=('Helvetica', 12), command=lambda:self.back_home())
+        back_btn.place(relx=0, rely=0)
+        
+        db = Db()
+        
+        
         
