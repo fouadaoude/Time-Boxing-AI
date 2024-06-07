@@ -8,8 +8,9 @@ class App(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.container = tk.Frame(self)  
         
+        self.get_primary_screen_size()
         self.title("Time Boxing AI")
-        self.minsize(self.screen_size()['width']-300, self.screen_size()['height']-200)
+        self.minsize(self.get_primary_screen_size()['width']-300, self.get_primary_screen_size()['height']-200)
         self.geometry("300x300+50+50")  # width x height + x + y
         
         self.container.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
@@ -39,37 +40,62 @@ class App(tk.Tk):
       
     def screen_size(self):
         # width, height
-        sizes = ""
+        sizes = {
+            'monitor1':{'width':0, 'height':0, 'primary':False},
+            'monitor2':{'width':0, 'height':0, 'primary':False}
+        }
         size_list = []
         index = 0
         size_dict = {}
-        
+        primary = False
+        size=""
+        x=0
         for monitor in get_monitors():
-            sizes = str(monitor)             
+            x+=1
+            size = str(monitor)     
+            
+            if size[-6:-1][0] == '=':
+                #primary = size[-5:-1]
+                primary = True
+            else:
+                #primary = size[-6:-1]
+                primary = False
+            
+            ########################
+            # removing extra chars #
+            index = size.index('(')
+            size = size[index+1:]
+            index = size.index(')')
+            size = size[:index]
         
-        ########################
-        # removing extra chars #
-        index = sizes.index('(')
-        sizes = sizes[index+1:]
-        index = sizes.index(')')
-        sizes = sizes[:index]
-    
-        size_list = sizes.split(", ")
-        size_list = size_list[2:4]
+            size_list = size.split(", ")
+            size_list = size_list[2:4]
+            
+            width = size_list[0].index("=")
+            size_list[0] = size_list[0][width+1:]
+            
+            height = size_list[1].index("=")
+            size_list[1] = size_list[1][height+1:]
+            # removing extra chars #
+            ########################            
+            monitor = 'monitor'+str(x)
+            
+            sizes[monitor]['width'] = int(size_list[0])
+            sizes[monitor]['height'] = int(size_list[1])
+            sizes[monitor]['primary'] = primary
+            
+                
         
-        width = size_list[0].index("=")
-        size_list[0] = size_list[0][width+1:]
-        
-        height = size_list[1].index("=")
-        size_list[1] = size_list[1][height+1:]
-        # removing extra chars #
-        ########################
-        
-        size_dict['width'] = int(size_list[0])
-        size_dict['height'] = int(size_list[1])
-        
-        return size_dict
+        return sizes
    
+    def get_primary_screen_size(self):
+        sizes = self.screen_size()
+        
+        for monitor, val in sizes.items():
+            if val['primary'] == True:
+                return val
+            
+
 
 app = App()
 app.mainloop()
