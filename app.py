@@ -25,7 +25,6 @@ class App(tk.Tk):
             frame = F(self.container, self)
             
             self.frames[F] = frame
-            
             frame.grid(row=0, column=0, sticky='nsew')
             
         self.show_frame(StartPage)
@@ -101,8 +100,3 @@ class App(tk.Tk):
 
 app = App()
 app.mainloop()
-    #window = Window(root=root)
-    #window.create()
-    #welcome = Frame(root).welcome()
-    #frame = Frame(root).home()
-    #root.mainloop()

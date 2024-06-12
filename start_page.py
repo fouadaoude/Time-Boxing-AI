@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import time
 import threading
-import os
+import os, sys
 from database import Db
 import flet as ft
 
@@ -177,14 +177,51 @@ class StartPage(tk.Frame):
         frame.config(bg='#%02x%02x%02x' % (34, 44, 52))
         frame.update()
     
+    def updated_fade_label(self, label=None, fg=None, bg=None, stop_thread=False):
+        time.sleep(0.5)
+        if fg and bg and len(fg) == 3 and len(bg) == 3:     
+            while True:                      
+                label.config(fg="#%02x%02x%02x" % (fg[0], fg[1], fg[2]))
+                if fg == bg:           
+                    while True:                        
+                        
+                        if fg[0] != 255:
+                            fg[0] += 1
+                        if fg[1] != 255:
+                            fg[1] += 1
+                        if fg[2] != 255:
+                            fg[2] += 1
+                        
+                        label.config(fg="#%02x%02x%02x" % (fg[0], fg[1], fg[2]))
+                        self.update()
+                        
+                        if fg == [255, 255, 255]:
+                            break
+                        
+                # Check if RGB values in foreground are smaller than background RGB values
+                if fg[0] > bg[0]:
+                    fg[0] -= 1
+                elif fg[0] < bg[0]:
+                    fg[0] += 1
+                
+                if fg[1] > bg[1]:
+                    fg[1] -= 1
+                elif fg[1] < bg[1]:
+                    fg[1] += 1
+                    
+                if fg[2] > bg[2]:
+                    fg[2] -= 1    
+                elif fg[2] < bg[2]:
+                    fg[2] += 1
+                
+                self.update()                
+    
     def home(self):
         ## Entire home page frame ##
         home_frame = tk.Frame(self, bg='#222c33')                                          
         home_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
 
         home_frame.config(bg='#222c33')
-        
-        #self.reset_home_color(home_frame)
         
         ## Frame for the fading logo ##
         left_frame = tk.Frame(home_frame, bg='#1e2f3b')
@@ -193,13 +230,13 @@ class StartPage(tk.Frame):
 
         ## Fades in entire frame on start up ##
         
-        home_design_label = tk.Label(left_frame, text="Time Boxing A.I.", fg='#222c33',bg='#222c33', font=('Helvetica', 40))        
-        home_design_label.pack(side='left', fill='both', expand=True) 
-        
-        self.forever = True
-        ## Fades the logo in and out on a loop forever ##
-        label_animation = threading.Thread(target=self.fade_in_out, args=(home_design_label,[34, 44, 51], [255,255,255] , left_frame, lambda:self.forever))
-        label_animation.start()
+        #home_design_label = tk.Label(left_frame, text="Time Boxing A.I.", fg='#222c33',bg='#222c33', font=('Helvetica', 40))        
+        home_design_label = tk.Label(left_frame, text="Time Boxing A.I.", fg='white',bg='#222c33', font=('Helvetica', 40))        
+        home_design_label.pack(side='left', fill='both', expand=True)
+                
+        ## Fades the logo in and out on a loop until stop_thread.set() is called##
+        t = threading.Thread(target=self.updated_fade_label, args=(home_design_label, [255, 255, 255], [43, 66, 82]))
+        t.start()
         
         ## Frame for schedule options ##
         right_frame = tk.Frame(home_frame, bg='#1e2f3b')
@@ -217,7 +254,7 @@ class StartPage(tk.Frame):
         
         view_schedule_btn = tk.Button(center_right_frame, text="View My Schedules", compound='c',
                                         highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
-                                        command=lambda:self.controller.show_frame(ScheduleView))                                        
+                                        command=lambda:[self.controller.show_frame(ScheduleView)])                                        
         create_schedule_btn = tk.Button(center_right_frame, text="Create Schedule", compound='c',
                                       highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
                                       command=lambda:self.controller.show_frame(ScheduleCreate))        
@@ -253,10 +290,9 @@ class ScheduleView(tk.Frame):
         self.change_frame_color()
         
         self.create_treeview()
-        
         # back_btn to go back to main menu
         back_btn = tk.Button(self, text="Back",highlightcolor='#1e2f3b', width="10", height="2", foreground='#1e2f3b', 
-                             font=('Helvetica', 12), command=lambda:self.back_home())
+                             font=('Helvetica', 12), command=lambda:[self.back_home()])
         back_btn.place(relx=0, rely=0)
                 
         
@@ -294,7 +330,7 @@ class ScheduleCreate(tk.Frame):
         self.view()
     
     def change_frame_color(self):
-        self.config(background='white')
+        self.config(background='black')
     
     def back_home(self):
         self.controller.show_frame(StartPage)
@@ -312,6 +348,7 @@ class ScheduleCreate(tk.Frame):
         
         self.create_schedule_for_frame(new_schedule_frame)
         self.sleep_time_frame(new_schedule_frame)
+        self.tasks_frame(new_schedule_frame)
         
         new_schedule_frame.grid(row=0, column=0, sticky='nsew')
         
@@ -354,3 +391,25 @@ class ScheduleCreate(tk.Frame):
         sleep_time_entry.grid(sticky='w', row=2, column=1)
         
         sleep_wake_time_frame.grid(row=2, column=0, sticky='w')
+    
+    def tasks_frame(self, frame):
+        tasks_frame = tk.Frame(frame)
+        
+        tasks_lbl = tk.Label(tasks_frame, text="Tasks", font=('Helvetica', 15))
+        tasks_lbl.grid(sticky='w', row=1, column=0)
+        
+        tasks_count = tk.IntVar()
+        tasks_count_box = tk.Spinbox(tasks_frame, from_=1, to=10, width=6, textvariable=tasks_count)
+        tasks_count_box.grid(sticky='e', row=1, column=1)        
+        
+        create_task_frame = tk.Frame(self, highlightbackground='gray', highlightthickness=2, borderwidth=1)
+        tab_control = ttk.Notebook(create_task_frame)
+        
+        tasks_count_box.bind('<ButtonRelease-1>', lambda event:print(tasks_count.get()))
+        
+        
+        
+        create_task_frame.grid(sticky='nsew', row=1, column=0)
+        tasks_frame.grid(sticky='w', row=3, column=0)
+        
+        
