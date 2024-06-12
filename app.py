@@ -1,4 +1,4 @@
-from start_page import StartPage, Schedule
+from start_page import StartPage, ScheduleView, ScheduleCreate
 from database import Db
 from screeninfo import get_monitors
 import tkinter as tk
@@ -21,7 +21,7 @@ class App(tk.Tk):
         
         self.frames = {}  
         
-        for F in (StartPage, Schedule):
+        for F in (StartPage, ScheduleView, ScheduleCreate):
             frame = F(self.container, self)
             
             self.frames[F] = frame

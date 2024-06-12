@@ -1,9 +1,11 @@
 from window import Window
 import tkinter as tk
+from tkinter import ttk
 import time
 import threading
 import os
 from database import Db
+import flet as ft
 
 FRAMECOLOR = [43, 66, 82]
 
@@ -215,17 +217,19 @@ class StartPage(tk.Frame):
         
         view_schedule_btn = tk.Button(center_right_frame, text="View My Schedules", compound='c',
                                         highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
-                                        command=lambda:self.controller.show_frame(Schedule))                                        
+                                        command=lambda:self.controller.show_frame(ScheduleView))                                        
         create_schedule_btn = tk.Button(center_right_frame, text="Create Schedule", compound='c',
-                                      highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12))        
+                                      highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
+                                      command=lambda:self.controller.show_frame(ScheduleCreate))        
         
         view_schedule_btn.place(relx=0.5, rely=0.2, anchor='center')
         create_schedule_btn.place(relx=0.5, rely=0.5, anchor='center')
         
 
-class Schedule(tk.Frame):
+class ScheduleView(tk.Frame):
     def __init__(self, parent, controller): 
         tk.Frame.__init__(self, parent)
+        
         self.controller = controller
         self.parent = parent
         self.view()
@@ -248,11 +252,105 @@ class Schedule(tk.Frame):
     def view(self):        
         self.change_frame_color()
         
-        back_btn = tk.Button(self.controller, text="Back",highlightcolor='#1e2f3b', width="10", height="2", foreground='#1e2f3b', 
+        self.create_treeview()
+        
+        # back_btn to go back to main menu
+        back_btn = tk.Button(self, text="Back",highlightcolor='#1e2f3b', width="10", height="2", foreground='#1e2f3b', 
                              font=('Helvetica', 12), command=lambda:self.back_home())
         back_btn.place(relx=0, rely=0)
+                
         
         db = Db()
         
+    def create_treeview(self, tree=None):
+        try:
+            tree_frame = tk.Frame(self, padx=10, pady=10)
+            
+            db = Db()
+            table = db.get_table_names('TimeBoxingAI')            
+            view_schedule_tree = ttk.Treeview(tree_frame, columns=(table), show='headings', 
+                                              style='unwrap.Treeview', selectmode='browse')        
+            view_schedule_tree.pack(side='left', fill='both', expand=True, pady=50)
+            
+            for col in table:
+                view_schedule_tree.column(col, minwidth=0, width=160, anchor='center', stretch='yes')
+                view_schedule_tree.heading(col, text=col)
+                
+            tree_frame.pack(fill='both', expand=True)
+            #view_schedule_tree.heading("#0", text="name")
+            
+        except:
+            print("Something went wrong adding columns to treeview")
+        else:
+            print("Added Columns to Treeview Successfully.")
+            
+class ScheduleCreate(tk.Frame):
+    def __init__(self, parent, controller): 
+        tk.Frame.__init__(self, parent)
         
+        self.controller = controller
+        self.parent = parent
         
+        self.view()
+    
+    def change_frame_color(self):
+        self.config(background='white')
+    
+    def back_home(self):
+        self.controller.show_frame(StartPage)
+    
+    def view(self):
+        self.change_frame_color()        
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        
+        new_schedule_frame = tk.Frame(self)  
+        # back_btn to go back to main menu
+        back_btn = tk.Button(new_schedule_frame, text="Back",highlightcolor='#1e2f3b', width="10", height="2", foreground='#1e2f3b', 
+                             font=('Helvetica', 12), command=lambda:self.back_home())
+        back_btn.grid(column=0, row=0, sticky='w')        
+        
+        self.create_schedule_for_frame(new_schedule_frame)
+        self.sleep_time_frame(new_schedule_frame)
+        
+        new_schedule_frame.grid(row=0, column=0, sticky='nsew')
+        
+    def create_schedule_for_frame(self, frame):        
+        
+        schedule_create_time = tk.StringVar()
+        
+        for_frame = tk.Frame(frame)
+        
+        create_schedule_for_label = tk.Label(for_frame, text="Create Schedule For:", anchor='w', justify='left', pady=20, font=('Helvetica', 15))
+        create_schedule_for_label.grid(sticky='w', row=1, column=0)
+        
+        today_btn = tk.Radiobutton(for_frame, justify='left', anchor='w', text="Today", variable=schedule_create_time, value="today",font=('Helvetica', 15))
+        today_btn.grid(sticky='w', row=1, column=1)
+        
+        month_btn = tk.Radiobutton(for_frame, justify='left', anchor='w', text="Month", variable=schedule_create_time, value="month",font=('Helvetica', 15))
+        month_btn.grid(sticky='w', row=1, column=2)
+        
+        year_btn = tk.Radiobutton(for_frame, justify='left', anchor='w', text="Year", variable=schedule_create_time, value="year",font=('Helvetica', 15))
+        year_btn.grid(sticky='w', row=1, column=3)
+                
+        for_frame.grid(row=1, column=0)
+
+    def sleep_time_frame(self, frame):
+        sleep_wake_time_frame = tk.Frame(frame)
+        
+        wake_time_var = tk.StringVar()
+        sleep_time_var = tk.StringVar()
+        
+        wake_time_lbl = tk.Label(sleep_wake_time_frame, text="What Time Do You Wake Up?", font=('Helvetica', 15))
+        wake_time_lbl.grid(sticky='w', row=1, column=0)
+        
+        wake_time_entry = tk.Entry(sleep_wake_time_frame, textvariable=wake_time_var, font=('Helvetica', 15), width=6)
+        wake_time_entry.grid(sticky='w', row=1, column=1)
+        
+        sleep_time_lbl = tk.Label(sleep_wake_time_frame, text="What Time Do You Sleep?", font=('Helvetica', 15), pady=10)
+        sleep_time_lbl.grid(sticky='w', row=2, column=0)
+        
+        sleep_time_entry = tk.Entry(sleep_wake_time_frame, textvariable=sleep_time_var, font=('Helvetica', 15), width=6)
+        sleep_time_entry.grid(sticky='w', row=2, column=1)
+        
+        sleep_wake_time_frame.grid(row=2, column=0, sticky='w')
