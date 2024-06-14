@@ -6,5 +6,4 @@ except:
     print("Issue Getting Database File")
 else:        
     print("Imported Database File Successfully")
-    
-conn = Db()
+    conn = Db()

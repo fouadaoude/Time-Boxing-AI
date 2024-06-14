@@ -1,3 +1,4 @@
+#WINDOWS
 from start_page_windows import StartPage, ScheduleView, ScheduleCreate
 try:
     from database import Db

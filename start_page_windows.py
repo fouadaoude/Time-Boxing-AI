@@ -1,4 +1,4 @@
-#from window import Window
+#WINDOWS
 import tkinter as tk
 from tkinter import ttk
 import time

@@ -1,3 +1,4 @@
+#MAC
 from start_page import StartPage, ScheduleView, ScheduleCreate
 from database import Db
 from screeninfo import get_monitors

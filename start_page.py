@@ -1,9 +1,10 @@
+#MAC
 from window import Window
 import tkinter as tk
 from tkinter import ttk
 import time
 import threading
-import os, sys
+import os, sys, ctypes
 from database import Db
 import flet as ft
 
@@ -17,6 +18,7 @@ class StartPage(tk.Frame):
         
         self.parent = parent
         self.controller = controller
+        self.stop_thread = threading.Event()
         self.home()
     
     def fade_label(self, label, current_color=None, rgb=None, frame=None, forever=False):
@@ -178,43 +180,72 @@ class StartPage(tk.Frame):
         frame.update()
     
     def updated_fade_label(self, label=None, fg=None, bg=None, stop_thread=False):
-        time.sleep(0.5)
-        if fg and bg and len(fg) == 3 and len(bg) == 3:     
-            while True:                      
-                label.config(fg="#%02x%02x%02x" % (fg[0], fg[1], fg[2]))
-                if fg == bg:           
-                    while True:                        
-                        
-                        if fg[0] != 255:
-                            fg[0] += 1
-                        if fg[1] != 255:
-                            fg[1] += 1
-                        if fg[2] != 255:
-                            fg[2] += 1
-                        
-                        label.config(fg="#%02x%02x%02x" % (fg[0], fg[1], fg[2]))
-                        self.update()
-                        
-                        if fg == [255, 255, 255]:
-                            break
-                        
-                # Check if RGB values in foreground are smaller than background RGB values
-                if fg[0] > bg[0]:
-                    fg[0] -= 1
-                elif fg[0] < bg[0]:
-                    fg[0] += 1
-                
-                if fg[1] > bg[1]:
-                    fg[1] -= 1
-                elif fg[1] < bg[1]:
-                    fg[1] += 1
+        try:
+            time.sleep(0.5)
+            if fg and bg and len(fg) == 3 and len(bg) == 3:     
+                while True:                      
+                    if self.thread_stopped() == True:
+                        break
+                    label.config(fg="#%02x%02x%02x" % (fg[0], fg[1], fg[2]))
+                    if fg == bg:           
+                        while True:   
+                            #print(fg)     
+                            if fg[0] != 255:
+                                fg[0] += 1
+                            if fg[1] != 255:
+                                fg[1] += 1
+                            if fg[2] != 255:
+                                fg[2] += 1
+                            
+                            label.config(fg="#%02x%02x%02x" % (fg[0], fg[1], fg[2]))
+                            self.update()
+                            
+                            if fg == [255, 255, 255]:
+                                break
                     
-                if fg[2] > bg[2]:
-                    fg[2] -= 1    
-                elif fg[2] < bg[2]:
-                    fg[2] += 1
-                
-                self.update()                
+                    # Check if RGB values in foreground are smaller than background RGB values
+                    if fg[0] > bg[0]:
+                        fg[0] -= 1
+                    elif fg[0] < bg[0]:
+                        fg[0] += 1
+                    
+                    if fg[1] > bg[1]:
+                        fg[1] -= 1
+                    elif fg[1] < bg[1]:
+                        fg[1] += 1
+                        
+                    if fg[2] > bg[2]:
+                        fg[2] -= 1    
+                    elif fg[2] < bg[2]:
+                        fg[2] += 1
+                    
+                    self.update()                
+        finally:
+            print("Fade Home Label Terminated")
+    
+    def thread_stopped(self):
+        print("STOPPPED", self.stop_thread.isSet())
+        return self.stop_thread.isSet()
+    
+    def get_thread_id(self):
+        if hasattr(self.thread, '_thread_id'):
+            print("Pressed has attr", self.thread._thread_id)
+            return self.thread._thread_id
+        for id, thread_ in threading._active.items():            
+            if thread_ is self.thread:
+                print("Pressed thread_ is thread", id)
+                return id
+    
+    def kill_thread(self):
+        t_id = self.get_thread_id()      
+        print("tid", t_id)  
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(t_id, ctypes.py_object(SystemExit))   
+        print("res", res)     
+        if res > 1:            
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(t_id, 0)
+            print("Kill Thread Failed.")   
+            
+        self.stop_thread.set()
     
     def home(self):
         ## Entire home page frame ##
@@ -235,8 +266,9 @@ class StartPage(tk.Frame):
         home_design_label.pack(side='left', fill='both', expand=True)
                 
         ## Fades the logo in and out on a loop until stop_thread.set() is called##
-        t = threading.Thread(target=self.updated_fade_label, args=(home_design_label, [255, 255, 255], [43, 66, 82]))
-        t.start()
+        self.thread = threading.Thread(target=self.updated_fade_label, args=(home_design_label, [255, 255, 255], [43, 66, 82]))
+        self.thread.daemon = True
+        self.thread.start()        
         
         ## Frame for schedule options ##
         right_frame = tk.Frame(home_frame, bg='#1e2f3b')
@@ -254,15 +286,17 @@ class StartPage(tk.Frame):
         
         view_schedule_btn = tk.Button(center_right_frame, text="View My Schedules", compound='c',
                                         highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
-                                        command=lambda:[self.controller.show_frame(ScheduleView)])                                        
+                                        command=lambda:[self.controller.show_frame(ScheduleView)])                    
+        #view_schedule_btn.bind("<Button-1>", lambda event:[self.kill_thread(t)])                    
+        view_schedule_btn.bind("<Button-1>", lambda event:[self.kill_thread()])
         create_schedule_btn = tk.Button(center_right_frame, text="Create Schedule", compound='c',
                                       highlightcolor='#1e2f3b', width="35", height="4", foreground='#1e2f3b', font=('Helvetica', 12),
-                                      command=lambda:self.controller.show_frame(ScheduleCreate))        
+                                      command=lambda:self.controller.show_frame(ScheduleCreate)) 
+        create_schedule_btn.bind("<Button-1>", lambda event:[self.kill_thread()])               
         
         view_schedule_btn.place(relx=0.5, rely=0.2, anchor='center')
         create_schedule_btn.place(relx=0.5, rely=0.5, anchor='center')
         
-
 class ScheduleView(tk.Frame):
     def __init__(self, parent, controller): 
         tk.Frame.__init__(self, parent)
@@ -296,7 +330,7 @@ class ScheduleView(tk.Frame):
         back_btn.place(relx=0, rely=0)
                 
         
-        db = Db()
+        # db = Db()
         
     def create_treeview(self, tree=None):
         try:
@@ -337,15 +371,18 @@ class ScheduleCreate(tk.Frame):
     
     def view(self):
         self.change_frame_color()        
+        
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
         
+        # frame for entire ScheduleCreate page
         new_schedule_frame = tk.Frame(self)  
         # back_btn to go back to main menu
         back_btn = tk.Button(new_schedule_frame, text="Back",highlightcolor='#1e2f3b', width="10", height="2", foreground='#1e2f3b', 
                              font=('Helvetica', 12), command=lambda:self.back_home())
         back_btn.grid(column=0, row=0, sticky='w')        
         
+        # self.create_schedule_for_frame is "for" the "for" label and radio buttons that exists in the page
         self.create_schedule_for_frame(new_schedule_frame)
         self.sleep_time_frame(new_schedule_frame)
         self.tasks_frame(new_schedule_frame)
@@ -394,22 +431,53 @@ class ScheduleCreate(tk.Frame):
     
     def tasks_frame(self, frame):
         tasks_frame = tk.Frame(frame)
+        create_task_frame = tk.Frame(self, highlightbackground='gray', highlightthickness=2, borderwidth=1)
+        
+        style = ttk.Style()
+        style.theme_use('default')
+        style.configure('My.TSpinbox', arrowsize=15)        
         
         tasks_lbl = tk.Label(tasks_frame, text="Tasks", font=('Helvetica', 15))
         tasks_lbl.grid(sticky='w', row=1, column=0)
         
-        tasks_count = tk.IntVar()
-        tasks_count_box = tk.Spinbox(tasks_frame, from_=1, to=10, width=6, textvariable=tasks_count)
-        tasks_count_box.grid(sticky='e', row=1, column=1)        
-        
-        create_task_frame = tk.Frame(self, highlightbackground='gray', highlightthickness=2, borderwidth=1)
         tab_control = ttk.Notebook(create_task_frame)
         
-        tasks_count_box.bind('<ButtonRelease-1>', lambda event:print(tasks_count.get()))
+        tasks_count = tk.IntVar()
         
+        tasks_count_box = ttk.Spinbox(tasks_frame, from_=0, to=10, width=6, textvariable=tasks_count, style='My.TSpinbox')         
+        tasks_count_box.configure(
+            command=lambda widget=tasks_count_box: self.update_tabs(tab_control, tasks_frame, self.tasks_count(widget)))
+        tasks_count_box.grid(sticky='e', row=1, column=1)                
         
-        
+        tab_control.bind("<Button-1>", lambda event: self.task_name_frame(tab_control, create_task_frame))
         create_task_frame.grid(sticky='nsew', row=1, column=0)
         tasks_frame.grid(sticky='w', row=3, column=0)
+    
+    # create_task(self) creates dictionary for task including the
+    # name, description, importance, etc.
+    def create_task(self):
+        pass
+    
+    def update_tabs(self, tab_control, frame, tasks_count):        
+        # checks if there are any tasks and if max tab count is reached
+        if tasks_count != 0 and len(tab_control.winfo_children()) != 10:
+            while len(tab_control.winfo_children()) < tasks_count:
+                print("NEW")
+                tab = ttk.Frame(tab_control)
+                tab_control.add(tab, text='Tab')
+                tab_control.grid(sticky='nsew', row=0, column=0)
         
-        
+        # deletes tabs if theres more tabs than requested
+        while len(tab_control.winfo_children()) > tasks_count:
+            print('wylin')
+            for item in tab_control.winfo_children():
+                item.destroy()
+                break        
+    
+    # task_name_frame creates label and entry to change the name of task and tab
+    def task_name_frame(self, tab_control, frame):
+        print("INDEX tab",tab_control.index(tab_control.select()))
+        print("TAB name", tab_control.tab(tab_control.select(), "text"))
+
+    def tasks_count(self, int_var):
+        return int(int_var.get())        
