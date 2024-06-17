@@ -12,7 +12,7 @@ class App(tk.Tk):
         self.get_primary_screen_size()
         self.title("Time Boxing AI")
         self.container.configure(background="#2b4252")   
-        self.minsize(self.get_primary_screen_size()['width']-300, self.get_primary_screen_size()['height']-200)
+        self.minsize(self.get_primary_screen_size()['width']-300, self.get_primary_screen_size()['height']-150)
         self.geometry("300x300+50+50")  # width x height + x + y
         
         self.container.pack(side='left', fill='both', expand=True, padx=10, pady=10)         

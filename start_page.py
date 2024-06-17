@@ -7,10 +7,10 @@ import threading
 import os, sys, ctypes
 from database import Db
 import flet as ft
+import psutil
+import inspect
 
 FRAMECOLOR = [43, 66, 82]
-
-# command = lambda : controller.show_frame(Page2))
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller): 
@@ -184,7 +184,7 @@ class StartPage(tk.Frame):
             time.sleep(0.5)
             if fg and bg and len(fg) == 3 and len(bg) == 3:     
                 while True:                      
-                    if self.thread_stopped() == True:
+                    if self.thread_stopped() == True:                        
                         break
                     label.config(fg="#%02x%02x%02x" % (fg[0], fg[1], fg[2]))
                     if fg == bg:           
@@ -219,28 +219,25 @@ class StartPage(tk.Frame):
                     elif fg[2] < bg[2]:
                         fg[2] += 1
                     
-                    self.update()                
+                    self.update()          
         finally:
-            print("Fade Home Label Terminated")
+            print("Fade Home Label Terminated")            
     
+    # Returns whether the thread is True or False
     def thread_stopped(self):
-        print("STOPPPED", self.stop_thread.isSet())
         return self.stop_thread.isSet()
     
     def get_thread_id(self):
         if hasattr(self.thread, '_thread_id'):
-            print("Pressed has attr", self.thread._thread_id)
             return self.thread._thread_id
         for id, thread_ in threading._active.items():            
             if thread_ is self.thread:
-                print("Pressed thread_ is thread", id)
                 return id
     
     def kill_thread(self):
         t_id = self.get_thread_id()      
-        print("tid", t_id)  
+
         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(t_id, ctypes.py_object(SystemExit))   
-        print("res", res)     
         if res > 1:            
             ctypes.pythonapi.PyThreadState_SetAsyncExc(t_id, 0)
             print("Kill Thread Failed.")   
@@ -256,7 +253,7 @@ class StartPage(tk.Frame):
         
         ## Frame for the fading logo ##
         left_frame = tk.Frame(home_frame, bg='#1e2f3b')
-        self.fade_in_frame(home_frame, [43, 66, 82], [34, 44, 51])
+        #self.fade_in_frame(home_frame, [43, 66, 82], [34, 44, 51])
         left_frame.pack(side='left', fill='both', expand=True, padx=10, pady=10) 
 
         ## Fades in entire frame on start up ##
@@ -366,7 +363,7 @@ class ScheduleCreate(tk.Frame):
     def change_frame_color(self):
         self.config(background='black')
     
-    def back_home(self):
+    def back_home(self):        
         self.controller.show_frame(StartPage)
     
     def view(self):
@@ -385,6 +382,7 @@ class ScheduleCreate(tk.Frame):
         # self.create_schedule_for_frame is "for" the "for" label and radio buttons that exists in the page
         self.create_schedule_for_frame(new_schedule_frame)
         self.sleep_time_frame(new_schedule_frame)
+        self.work_time_frame(new_schedule_frame)
         self.tasks_frame(new_schedule_frame)
         
         new_schedule_frame.grid(row=0, column=0, sticky='nsew')
@@ -401,11 +399,14 @@ class ScheduleCreate(tk.Frame):
         today_btn = tk.Radiobutton(for_frame, justify='left', anchor='w', text="Today", variable=schedule_create_time, value="today",font=('Helvetica', 15))
         today_btn.grid(sticky='w', row=1, column=1)
         
+        week_btn = tk.Radiobutton(for_frame, justify='left', anchor='w', text="Week", variable=schedule_create_time, value="week",font=('Helvetica', 15))
+        week_btn.grid(sticky='w', row=1, column=2)
+        
         month_btn = tk.Radiobutton(for_frame, justify='left', anchor='w', text="Month", variable=schedule_create_time, value="month",font=('Helvetica', 15))
-        month_btn.grid(sticky='w', row=1, column=2)
+        month_btn.grid(sticky='w', row=1, column=3)
         
         year_btn = tk.Radiobutton(for_frame, justify='left', anchor='w', text="Year", variable=schedule_create_time, value="year",font=('Helvetica', 15))
-        year_btn.grid(sticky='w', row=1, column=3)
+        year_btn.grid(sticky='w', row=1, column=4)
                 
         for_frame.grid(row=1, column=0)
 
@@ -427,15 +428,28 @@ class ScheduleCreate(tk.Frame):
         sleep_time_entry = tk.Entry(sleep_wake_time_frame, textvariable=sleep_time_var, font=('Helvetica', 15), width=6)
         sleep_time_entry.grid(sticky='w', row=2, column=1)
         
-        sleep_wake_time_frame.grid(row=2, column=0, sticky='w')
+        sleep_wake_time_frame.grid(row=3, column=0, sticky='w')
+  
+    def work_time_frame(self, frame):
+        work_time_frame = tk.Frame(frame)
+        
+        work_time_var = tk.StringVar()
+        
+        work_time_lbl = tk.Label(work_time_frame, text="What Time Do You Have Work?", font=('Helvetica', 15))
+        work_time_lbl.grid(sticky='w', row=1, column=0)
+        
+        work_time_entry = tk.Entry(work_time_frame, textvariable=work_time_var, font=('Helvetica', 15), width=6)
+        work_time_entry.grid(sticky='w', row=1, column=1)
+        
+        work_time_frame.grid(row=4, column=0, sticky='w')
     
     def tasks_frame(self, frame):
         tasks_frame = tk.Frame(frame)
-        create_task_frame = tk.Frame(self, highlightbackground='gray', highlightthickness=2, borderwidth=1)
+        create_task_frame = tk.Frame(self, highlightbackground='red', highlightthickness=2, borderwidth=1)
         
         style = ttk.Style()
         style.theme_use('default')
-        style.configure('My.TSpinbox', arrowsize=15)        
+        style.configure('My.TSpinbox', arrowsize=18)        
         
         tasks_lbl = tk.Label(tasks_frame, text="Tasks", font=('Helvetica', 15))
         tasks_lbl.grid(sticky='w', row=1, column=0)
@@ -446,38 +460,83 @@ class ScheduleCreate(tk.Frame):
         
         tasks_count_box = ttk.Spinbox(tasks_frame, from_=0, to=10, width=6, textvariable=tasks_count, style='My.TSpinbox')         
         tasks_count_box.configure(
-            command=lambda widget=tasks_count_box: self.update_tabs(tab_control, tasks_frame, self.tasks_count(widget)))
+            command=lambda widget=tasks_count_box: self.update_tabs(tab_control, self.tasks_count(widget), create_task_frame))
         tasks_count_box.grid(sticky='e', row=1, column=1)                
         
-        tab_control.bind("<Button-1>", lambda event: self.task_name_frame(tab_control, create_task_frame))
         create_task_frame.grid(sticky='nsew', row=1, column=0)
-        tasks_frame.grid(sticky='w', row=3, column=0)
+        tasks_frame.grid(sticky='w', row=5, column=0, pady=10)
     
     # create_task(self) creates dictionary for task including the
     # name, description, importance, etc.
-    def create_task(self):
-        pass
-    
-    def update_tabs(self, tab_control, frame, tasks_count):        
+    def create_task(self, name, time, importance_level, description, wake_time, work_time, sleep_time):
+        return {
+            name:{
+                "time": {"hour": time["hour"],
+                         "minute": time["minute"]},
+                
+                "importance_level": importance_level,
+                "description": description,
+                "wake_time": wake_time,
+                "work_time": work_time,
+                "sleep_time": sleep_time
+            }}
+        
+    def update_tabs(self, tab_control, tasks_count, frame):        
         # checks if there are any tasks and if max tab count is reached
         if tasks_count != 0 and len(tab_control.winfo_children()) != 10:
             while len(tab_control.winfo_children()) < tasks_count:
-                print("NEW")
-                tab = ttk.Frame(tab_control)
-                tab_control.add(tab, text='Tab')
+                tab = ttk.Frame(tab_control)           
+                #tab.grid(sticky='nsew', row=1, column=0)     
+                task_name_var = tk.StringVar()
+                
+                style = ttk.Style()
+                style.theme_use('default')
+                style.configure('My.TSpinbox', arrowsize=18)
+
+                task_name_lbl = ttk.Label(tab, text="Task Name ", font=('Helvetica', 15))
+                task_name_lbl.grid(sticky='w', row=2, column=0)
+                
+                task_name_entry = ttk.Entry(tab, textvariable=task_name_var, font=('Helvetica', 15), width=15)
+                task_name_entry.grid(sticky='w', row=3, column=0)                
+                
+                task_desc_lbl = ttk.Label(tab, text="Task Description", font=('Helvetica', 15))
+                task_desc_lbl.grid(sticky='w', row=4, column=0)
+                
+                task_desc_box = tk.Text(tab)
+                task_desc_box.grid(sticky='nsew', row=5, column=0)
+                                
+                task_name_entry.bind("<KeyRelease>", lambda event: [tab_control.tab(tab, text=task_name_var.get())])
+                
+                importance_lvl_var = tk.IntVar()
+                importance_frame = ttk.Frame(tab)
+                importance_frame.grid(sticky='nsew', row=6, column=0, pady=10)
+                
+                importance_lvl_lbl = ttk.Label(importance_frame, text="Importance Level", font=('Helvetica', 15))
+                importance_lvl_lbl.grid(sticky='nsew', row=0, column=0)
+                
+                importance_lvl_box = ttk.Spinbox(importance_frame, from_=0, to=10, width=6, textvariable=importance_lvl_var, style='My.TSpinbox')
+                importance_lvl_box.grid(sticky='nsew', row=0, column=1)
+                
                 tab_control.grid(sticky='nsew', row=0, column=0)
+                
+                frame.grid_columnconfigure(0, weight=1)
+                frame.grid_rowconfigure(0, weight=1)        
+                
+                tab_control.add(tab, text=str(tasks_count))                
         
         # deletes tabs if theres more tabs than requested
         while len(tab_control.winfo_children()) > tasks_count:
-            print('wylin')
             for item in tab_control.winfo_children():
                 item.destroy()
-                break        
-    
+                break      
+        
     # task_name_frame creates label and entry to change the name of task and tab
     def task_name_frame(self, tab_control, frame):
         print("INDEX tab",tab_control.index(tab_control.select()))
         print("TAB name", tab_control.tab(tab_control.select(), "text"))
 
+    def tab_len(self, tab_control):
+        return len(tab_control.winfo_children())
+    
     def tasks_count(self, int_var):
         return int(int_var.get())        
