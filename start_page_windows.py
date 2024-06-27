@@ -1,9 +1,12 @@
 #from window import Window
 import tkinter as tk
 from tkinter import ttk
+from functools import partial
 import time
 import threading
 import os, sys, ctypes
+import math
+
 try:
     from database import Db
     import flet as ft
@@ -525,8 +528,15 @@ class ScheduleCreate(tk.Frame):
                 time_slider_frame = tk.Frame(tab, highlightbackground='red', highlightthickness=2, borderwidth=1)
                 time_slider_frame.grid(sticky='w', row=2, column=2)
 
-                time_slider = tk.Scale(time_slider_frame, from_=0, to=16, orient='horizontal')
-                time_slider.grid(sticky='w', row=0, column=0)
+                time_slider_lbl = tk.Label(time_slider_frame, text="How Long Will This Take?", font=('Helvetica', 10))
+                time_slider_lbl.grid(sticky='w', row=0, column=0)
+
+                time_slider_hour_lbl = tk.Label(time_slider_frame, text='1 Hour')
+                time_slider_hour_lbl.grid(sticky='e', row=0, column=2)
+
+                time_slider = ttk.Scale(time_slider_frame, from_=0, to=16, orient='horizontal', command=partial(self.update_slider_lbl, time_slider_hour_lbl))
+                time_slider.grid(sticky='w', row=0, column=1)
+                
 
                 frame.grid_columnconfigure(0, weight=1)
                 frame.grid_rowconfigure(0, weight=1)        
@@ -539,7 +549,23 @@ class ScheduleCreate(tk.Frame):
             for item in tab_control.winfo_children():
                 item.destroy()
                 break
+    
+    def update_slider_lbl(self, lbl, val):
+        val = float(val)
+        val = round(val, 1)
 
+        if val % 0.5 == 0:
+            lbl.config(text=str(float(val))+' Hour')
+            print("VALLLL", val % 0.5)
+            print(val)
+        else:
+            lbl.config(text=str(int(float(val)))+' Hour')
+
+        
+
+    def get_time_slider_val(self, val):
+        return int(float(val))
+    
     # task_name_frame creates label and entry to change the name of task and tab
     def task_name_frame(self, tab_control, frame):
         print("INDEX tab",tab_control.index(tab_control.select()))
