@@ -1,0 +1,32 @@
+html {
+    height: 100%;
+    background-color: #2b4252;
+}
+
+body {
+    height: 100%;
+}
+
+.homeContainer {
+    display: grid;
+    padding: 5%;
+    gap: 0.5%;
+    height: 100%;
+    grid-template-columns: 70% 30%;
+    grid-template-rows: 80%;
+    
+}
+
+.homeContainer .option {
+    text-align: center;
+    color: white;
+    background-color: #1a2d3b;
+    
+}
+
+.homeContainer .logo {
+    text-align: center;
+    color: white;
+    background-color: #1a2d3b;
+    
+}

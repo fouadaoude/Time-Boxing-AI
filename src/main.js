@@ -5,8 +5,8 @@ let mainWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 650,
+        width: 1000,
+        height: 750,
         webPreferences: {
             nodeIntegration: true,
         },
@@ -21,19 +21,3 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow);
-
-app.on('window-all-closed', function() {
-    if(process.platform !== 'darwin') {
-        console.log('HELOOOOOO')        
-        app.quit()
-        
-    } 
-});
-
-/*app.on('activate', function() {
-    if(mainWindow === null) {
-        createWindow()
-    } 
-});*/
-
-// Load up to date GitHub files
