@@ -2,6 +2,7 @@
 from window import Window
 import tkinter as tk
 from tkinter import ttk
+from functools import partial
 import time
 import threading
 import os, sys, ctypes
@@ -242,7 +243,7 @@ class StartPage(tk.Frame):
             ctypes.pythonapi.PyThreadState_SetAsyncExc(t_id, 0)
             print("Kill Thread Failed.")   
             
-        self.stop_thread.set()
+        self.stop_thread.set()                
     
     def home(self):
         ## Entire home page frame ##
@@ -445,7 +446,7 @@ class ScheduleCreate(tk.Frame):
     
     def tasks_frame(self, frame):
         tasks_frame = tk.Frame(frame)
-        create_task_frame = tk.Frame(self, highlightbackground='red', highlightthickness=2, borderwidth=1)
+        create_task_frame = tk.Frame(self, highlightbackground='gray', highlightthickness=2, borderwidth=1)
         
         style = ttk.Style()
         style.theme_use('default')
@@ -485,7 +486,9 @@ class ScheduleCreate(tk.Frame):
         # checks if there are any tasks and if max tab count is reached
         if tasks_count != 0 and len(tab_control.winfo_children()) != 10:
             while len(tab_control.winfo_children()) < tasks_count:
-                tab = ttk.Frame(tab_control)           
+                tab = ttk.Frame(tab_control)
+                tab.grid_columnconfigure(0, weight=1)
+                tab.grid(columnspan=3)           
                 #tab.grid(sticky='nsew', row=1, column=0)     
                 task_name_var = tk.StringVar()
                 
@@ -502,8 +505,11 @@ class ScheduleCreate(tk.Frame):
                 task_desc_lbl = ttk.Label(tab, text="Task Description", font=('Helvetica', 15))
                 task_desc_lbl.grid(sticky='w', row=4, column=0)
                 
-                task_desc_box = tk.Text(tab)
-                task_desc_box.grid(sticky='nsew', row=5, column=0)
+                task_desc_frame = ttk.Frame(tab)
+                task_desc_frame.grid(sticky='w', row=5, column=0)
+
+                task_desc_box = tk.Text(task_desc_frame, width=45, height=12, wrap='word')
+                task_desc_box.grid(sticky='w', row=0, column=0)
                                 
                 task_name_entry.bind("<KeyRelease>", lambda event: [tab_control.tab(tab, text=task_name_var.get())])
                 
@@ -516,20 +522,50 @@ class ScheduleCreate(tk.Frame):
                 
                 importance_lvl_box = ttk.Spinbox(importance_frame, from_=0, to=10, width=6, textvariable=importance_lvl_var, style='My.TSpinbox')
                 importance_lvl_box.grid(sticky='nsew', row=0, column=1)
+
+                time_slider_frame = tk.Frame(tab, highlightbackground='red', highlightthickness=2, borderwidth=1)
+                time_slider_frame.grid(sticky='w', row=2, column=2)
+
+                time_slider_lbl = tk.Label(time_slider_frame, text="How Long Will This Take?", font=('Helvetica', 10))
+                time_slider_lbl.grid(sticky='w', row=0, column=0)
+
+                time_slider_hour_lbl = tk.Label(time_slider_frame, text='1 Hour')
+                time_slider_hour_lbl.grid(sticky='w', row=1, column=1)
+
+                time_slider = ttk.Scale(time_slider_frame, from_=0, to=16, length=300, orient='horizontal', command=partial(self.update_slider_lbl, time_slider_hour_lbl))
+                time_slider.grid(sticky='w', row=0, column=1)
                 
-                tab_control.grid(sticky='nsew', row=0, column=0)
-                
+
                 frame.grid_columnconfigure(0, weight=1)
                 frame.grid_rowconfigure(0, weight=1)        
                 
-                tab_control.add(tab, text=str(tasks_count))                
+                tab_control.add(tab, text=str(tasks_count))    
+                tab_control.grid(sticky='nsew', row=0, column=0)
         
         # deletes tabs if theres more tabs than requested
         while len(tab_control.winfo_children()) > tasks_count:
             for item in tab_control.winfo_children():
                 item.destroy()
-                break      
+                break
+    
+    def update_slider_lbl(self, lbl, val):
+        val = float(val)
+        val = round(val, 1)
+
+        str_val = str(val)
         
+        if val % 0.5 == 0 and str_val[-1] != '0':
+            lbl.config(text=str(float(val))+' Hour')
+            #print("VALLLL", val % 0.5)
+            #print(val)
+        else:
+            lbl.config(text=str(int(float(val)))+' Hour')
+
+        
+
+    def get_time_slider_val(self, val):
+        return int(float(val))
+    
     # task_name_frame creates label and entry to change the name of task and tab
     def task_name_frame(self, tab_control, frame):
         print("INDEX tab",tab_control.index(tab_control.select()))
