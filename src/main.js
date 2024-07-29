@@ -1,17 +1,12 @@
 //main.js
-const { app, BrowserWindow } = require('electron');
+const {app, BrowserWindow} = require('electron');
 
 let mainWindow;
 
 function createWindow() {
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-
-    console.log(width)
-
     mainWindow = new BrowserWindow({
-        width: 600,
-        height: 600,
+        width: 800,
+        height: 650,
         webPreferences: {
             nodeIntegration: true,
         },
@@ -21,15 +16,24 @@ function createWindow() {
 
     mainWindow.on('closed', function() {
         mainWindow = null;
+        app.quit()
     });
 }
 
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', function() {
-    if(process.platform !== 'darwin') app.quit();
+    if(process.platform !== 'darwin') {
+        console.log('HELOOOOOO')        
+        app.quit()
+        
+    } 
 });
 
-app.on('activate', function() {
-    if(mainWindow === null) createWindow();
-});
+/*app.on('activate', function() {
+    if(mainWindow === null) {
+        createWindow()
+    } 
+});*/
+
+// Load up to date GitHub files
