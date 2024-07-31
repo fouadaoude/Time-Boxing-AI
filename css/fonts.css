@@ -7,6 +7,10 @@ h1 {
     line-height: 26.4px; 
 } 
 
+.logo h1 {
+    font-size: 44px;
+}
+
 h3 { 
     font-family: Candara, Calibri, Segoe, "Segoe UI", Optima, Arial, sans-serif;
     font-size: 14px; font-style: normal; 
