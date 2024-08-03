@@ -1,0 +1,70 @@
+<!-- index.html -->
+<!DOCTYPE html>
+
+<html>
+ 
+    <head>
+        <link rel="stylesheet" href="../css/createSchedule.css">
+        <link rel="stylesheet" href="../css/fonts.css">
+        <script src=https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js></script>
+        <script src="js/jsCreateScheduleFunctions.js"></script>
+        <script src="js/jqueryFunctions.js"></script>
+        <title>Time Boxing AI</title>
+    </head>
+    
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>New Schedule</h1>
+            </div>
+
+            <div class="scheduleType">
+                <h3>Create Schedule For</h3>
+                
+                <div class="scheduleButtons">
+                    <button id="scheduleButtonDay" onClick="buttonStayPressed('day')">Day</button>
+                    <button id="scheduleButtonWeek" onClick="buttonStayPressed('week')">Week</button>
+                    <button id="scheduleButtonMonth" onClick="buttonStayPressed('month')">Month</button>
+                </div>
+            </div>
+
+            <div class="sleepTimes">
+                <div>
+                    <h3>What Time Do You Wake Up?</h3>                
+                    <input class="timeEntry" type="time" required />
+                </div>
+
+                <div>
+                    <h3>What Time Do You Sleep?</h3>                
+                    <input class="timeEntry" type="time" required />
+                </div>
+            </div>
+
+            <div class="tasks">
+
+                <button class="dropDownButton" haspopup="menu">
+                    <span id="taskAmount">Task Amount</span>
+                    <span class="arrow"></span>    
+                </button>
+                
+                <ul class="taskAmount" role="menu">
+                    <li value="1"><a onClick="taskAmountDisplay('1')" href="#">1</a></li>
+                    <li value="2"><a onClick="taskAmountDisplay('2')" href="#">2</a></li>
+                    <li value="3"><a onClick="taskAmountDisplay('3')" href="#">3</a></li>
+                    <li value="4"><a onClick="taskAmountDisplay('4')" href="#">4</a></li>
+                    <li value="5"><a onClick="taskAmountDisplay('5')" href="#">5</a></li>
+                </ul>
+                
+                <div>
+                <h1>hu</h1>
+                </div>
+
+            </div>
+
+
+            
+        </div>
+
+    </body>
+ 
+</html>                

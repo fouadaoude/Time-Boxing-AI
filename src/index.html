@@ -1,38 +1,42 @@
 <!-- index.html -->
 <!DOCTYPE html>
+
 <html>
-
-<head>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/fonts.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="js/jqueryFunctions.js"></script>
-    <title>Time Boxing AI</title>
-</head>
-
-<body>
-    <div class="homeContainer">
+ 
+    <head>
+        <link rel="stylesheet" href="../css/home.css">
+        <link rel="stylesheet" href="../css/fonts.css">
+        <script src=https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js></script>
+        <script src="js/jqueryFunctions.js"></script>
+        <script src="js/jsHomeFunctions.js"></script>
+        <title>Time Boxing AI</title>
+    </head>
+    
+    <body>
+        <div id="homeContainer" class="homeContainer">
         
-        <div class="logo">
-            <h1>Time Boxing AI</h1>                
+            <div id="homeLogoContainer" class="logo">
+                <h1 id="homeLogo">Time Boxing AI</h1>                
+            </div>
+    
+            <div id="option" class="option">
+    
+                <h1 id="optionH1">Select an Option</h1>        
+            
+                    <div id="homeButtons">
+                            <!--The "<a href="#"" indicates the page it will go to once the button is pressed.-->
+                            <a href="#" onClick="homeButtonPressAnimation('view')" id="viewScheduleButton" class="button">View Schedules</a>
+                            <br><br><br><br>
+                            <a href="#" onClick="homeButtonPressAnimation('create')" id="createScheduleButton" class="button">Create Schedule</a>                                    
+                            <br><br><br><br>                        
+                            <a href="#" id="exitButton" class="exitButton">Exit</a>                    
+                
+                    </div>  
+
+            </div>                          
+    
         </div>
 
-        <div class="option">
-
-            <h1>Select an Option</h1>        
-            
-            <div>
-                <!--The "<a href="#"" indicates the page it will go to once the button is pressed.-->
-                <a href="#" class="button">View Schedules</a>
-                <br><br><br><br>
-                <a href="#" class="button">Create Schedule<a>
-            </div>
-
-            <a href="#" class="exitButton">Exit</a>
-
-        </div>            
-    
-    </div>
-</body>
-
-</html>
+    </body>
+ 
+</html>                
