@@ -26,40 +26,31 @@ function buttonStayPressed(type) {
     
 }
 
-function buttonPressed() {
-    dayButton = document.getElementById("scheduleButtonDay"); 
-    weekButton = document.getElementById("scheduleButtonWeek"); 
-    monthButton = document.getElementById("scheduleButtonMonth");
-
-    if (dayButton.classList.contains('active')) {
-        return true;
-    }
-
-    else if (weekButton.classList.contains('active')) {
-        return true;
-    }
-
-    else if (monthButton.classList.contains('active')) {
-        return true;
+function buttonPressed(tab) {
+    var tabClicked = document.getElementById(tab);
+    
+    if (!tabClicked.classList.contains('clicked')) {
+        tabClicked.classList.toggle('clicked')
     }
     
-    else {
-        return false;
-    }
-
 }
 
 function taskAmountDisplay(amount) {
     let taskAmount = document.getElementById('amount');
     let taskAmountDropDown = document.getElementById('taskAmount');
     let taskEntryNav = document.getElementById('taskEntryNav');
+    let taskEntryContainerLeft = document.getElementById('taskEntryContainerLeft');
+    let taskEntryContainerRight = document.getElementById('taskEntryContainerRight');
 
     taskAmount.innerHTML = "Task Amount: " + amount;
     
     taskAmountDropDown.classList.toggle("show");    
         
-    if (!taskEntryNav.classList.contains("showGrid")) {
-        taskEntryNav.classList.toggle("showGrid");    
+    if (!taskEntryNav.classList.contains("showNavGrid")) {
+        taskEntryNav.classList.toggle("showNavGrid");   
+        taskEntryNav.classList.add("nav"); 
+        taskEntryContainerLeft.classList.add("showTaskLeftGrid");
+        taskEntryContainerRight.classList.add("showTaskRightGrid");
     }    
     
     amount = Number(amount);
@@ -84,11 +75,12 @@ function createTaskNavBar(amount) {
 
         else if (amount > tabLength) {     
             var newTab = document.createElement("a");
-            newTab.id = "tab"+String(tabLength+1);
+            newTab.id = "tab"+String(tabLength+1);            
             newTab.textContent = "Tab "+String(tabLength+1);
             newTab.href = "#";
-                   
-            taskEntryNav.appendChild(newTab);
+            newTab.style.textDecoration = 'none !important';
+            newTab.setAttribute("onClick", "buttonPressed('"+String(newTab.id)+"')");
+            taskEntryNav.appendChild(newTab);         
         }
 
     }        
