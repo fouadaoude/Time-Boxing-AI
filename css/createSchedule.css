@@ -18,7 +18,7 @@ body {
     width: 95%;
     display: grid;
     grid-template-columns: auto;
-    grid-template-rows: 8% 12% 10% auto auto;
+    grid-template-rows: 8% 12% 10% 72%;
     text-align: center;
     color: #45A29E;    
     background-color: #1F2833;
@@ -91,9 +91,8 @@ body {
     margin-left: 1%;
     margin-bottom: 3%;
     grid-template-columns: 20% 80%;
-    grid-template-rows: 20%;
+    grid-template-rows: 10%;
     color: #45A29E;
-    background-color: green;
     
 }
 
@@ -106,7 +105,7 @@ body {
 
 .dropDown .dropDownButton {
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     text-align: left;
     background-color: #0B0C10;
     border-color: #45A29E;
@@ -146,27 +145,74 @@ body {
 
 .taskEntryNav {
     display: grid;
-    padding-top: 1%;
     text-align: center;
     grid-template-columns: 20% 20% 20% 20% 20%;
     grid-template-rows: 100%;
-    font-size: 12px;
-    text-decoration: none;
+    font-size: 14px;
 }
 
-.taskEntryContainer {
+.taskEntryNav a {
+    text-decoration: none;
+    text-align: center;
+    margin-bottom: 0;
+    padding: 5%;
+    color: #45A29E;
+    background: linear-gradient(currentColor 0 0)
+                bottom left/
+                var(--underline-width, 0%) 0.1em
+                no-repeat;
+    transition: background-size 0.5s;
+}
+
+.clicked {
+    border-bottom-style: solid;
+    color: #45A29E;
+}
+
+.taskEntryNav a:hover {
+    --underline-width: 100%;
+    color: #45A29E;
+}
+
+
+
+.taskEntryContainerLeft {
     display: grid;
-    text-align: 0;
+    text-align: left;
     grid-template-columns: 100%;
     grid-template-rows: 100%;
-    
-    background-color: aliceblue;
 }
 
-.showGrid {
+.taskEntryContainerRight {
+    display: grid;
+    text-align: left;
+    grid-template-columns: 100%;
+    grid-template-rows: 100%;
+}
+
+.showNavGrid {
     display: grid; 
-    
+    border-top-style: solid;
+    border-right-style: solid;
+    border-width: 1px;
     background-color: #21232a;
+}
+
+.showTaskLeftGrid {
+    display: grid;
+    border-width: 1px;
+    background-color: #0B0C10;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    
+}
+
+.showTaskRightGrid {
+    display: grid;
+    border-width: 1px;
+    background-color: #0B0C10;
+    border-right-style: solid;
+    border-bottom-style: solid;
 }
 
 /* For sleepTimes entry box ||Colors|| */
