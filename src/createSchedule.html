@@ -6,7 +6,7 @@
     <head>
         <link rel="stylesheet" href="../css/createSchedule.css">
         <link rel="stylesheet" href="../css/fonts.css">
-        <script src=https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="js/jsCreateScheduleFunctions.js"></script>
         <script src="js/jqueryFunctions.js"></script>
         <title>Time Boxing AI</title>
@@ -41,28 +41,30 @@
             </div>
 
             <div class="tasks">
+                <div class="dropDown">
+                    <button class="dropDownButton" id="amount" onClick="toggleDropDown()">Task Amount</button>
+                
+                    <div class="dropDownContent" id="taskAmount">
+                        <a href="#" onClick="taskAmountDisplay('1')">1</a>
+                        <a href="#" onClick="taskAmountDisplay('2')">2</a>
+                        <a href="#" onClick="taskAmountDisplay('3')">3</a>
+                        <a href="#" onClick="taskAmountDisplay('4')">4</a>
+                        <a href="#" onClick="taskAmountDisplay('5')">5</a>
 
-                <button class="dropDownButton" haspopup="menu">
-                    <span id="taskAmount">Task Amount</span>
-                    <span class="arrow"></span>    
-                </button>
+                    </div>
                 
-                <ul class="taskAmount" role="menu">
-                    <li value="1"><a onClick="taskAmountDisplay('1')" href="#">1</a></li>
-                    <li value="2"><a onClick="taskAmountDisplay('2')" href="#">2</a></li>
-                    <li value="3"><a onClick="taskAmountDisplay('3')" href="#">3</a></li>
-                    <li value="4"><a onClick="taskAmountDisplay('4')" href="#">4</a></li>
-                    <li value="5"><a onClick="taskAmountDisplay('5')" href="#">5</a></li>
-                </ul>
+                </div>  
                 
-                <div>
-                <h1>hu</h1>
+                <div class="taskEntryNav" id="taskEntryNav">
+                                         
                 </div>
-
+                
             </div>
 
+            <div class="taskEntryContainer">
+                
+                </div>
 
-            
         </div>
 
     </body>
