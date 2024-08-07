@@ -1,6 +1,42 @@
-var script = document.createElement('script');
+ var script = document.createElement('script');
 script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"; // Check https://jquery.com/ for the current version
 document.getElementsByTagName('head')[0].appendChild(script);
+
+class Task {
+    constructor(tab) {
+        this.tab = tab;
+        //this.taskName = taskName;
+        //this.taskDesc = taskDesc;
+        //this.taskImportance = taskImportance;
+        //this.taskTime = taskTime;
+    }
+
+    create() {
+        let taskEntryNav = document.getElementById('taskEntryNav');
+        let taskEntryContainerLeft = document.getElementById('taskEntryContainerLeft');
+        let taskEntryContainerRight = document.getElementById('taskEntryContainerRight');
+        let currentTaskId = document.getElementsByClassName('clicked')[0].id
+
+        let currentTask = document.getElementById(currentTaskId);
+
+
+        // Check is current tab clicked does not already have values. If values exist. Keep them.
+        //document.querySelector('.myClassName').id
+
+        //taskNameLabel.setAttribute("for", currentTask)
+        if (this.tab) {
+            console.log("YES",currentTask); 
+            var taskFormDiv = document.createElement("form");
+            var taskNameLabel = document.createElement("label");
+            var taskNameEntry = document.createElement("");
+            taskNameLabel.textContent = "Task Name";
+            
+            taskEntryContainerLeft.appendChild(taskFormDiv);
+        }
+        
+
+    }
+}
 
 function buttonStayPressed(type) { 
     let pressed = buttonPressed();
@@ -30,12 +66,19 @@ function buttonPressed(tab) {
     var tabClicked = document.getElementById(tab);
     
     if (!tabClicked.classList.contains('clicked')) {
-        tabClicked.classList.toggle('clicked')
+        tabClicked.classList.toggle('clicked');
     }
-    
+
+    for (var id=1;id <= 5;id++) {
+        var tabID = "tab"+String(id);
+        var currentTab = document.getElementById(tabID);            
+        if (currentTab.classList.contains('clicked') && tabClicked !== currentTab) {
+            currentTab.classList.toggle('clicked');
+        }
+    }
 }
 
-function taskAmountDisplay(amount) {
+function taskDisplay(amount) {
     let taskAmount = document.getElementById('amount');
     let taskAmountDropDown = document.getElementById('taskAmount');
     let taskEntryNav = document.getElementById('taskEntryNav');
@@ -79,7 +122,8 @@ function createTaskNavBar(amount) {
             newTab.textContent = "Tab "+String(tabLength+1);
             newTab.href = "#";
             newTab.style.textDecoration = 'none !important';
-            newTab.setAttribute("onClick", "buttonPressed('"+String(newTab.id)+"')");
+            newTab.setAttribute("onClick", "buttonPressed('"+String(newTab.id)+"'); new Task('"+String(newTab.id)+"').create()");
+
             taskEntryNav.appendChild(newTab);         
         }
 
