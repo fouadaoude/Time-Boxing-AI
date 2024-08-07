@@ -23,18 +23,73 @@ class Task {
         // Check is current tab clicked does not already have values. If values exist. Keep them.
         //document.querySelector('.myClassName').id
 
-        //taskNameLabel.setAttribute("for", currentTask)
-        if (this.tab) {
-            console.log("YES",currentTask); 
-            var taskFormDiv = document.createElement("form");
+        var formId = currentTaskId + "formLeft";        
+
+        if (this.tab && this.formExists(formId)) {
+            document.getElementById(formId).classList.toggle('showForm');
+        }
+
+        else if (this.tab && !this.formExists(formId)) {                        
+            var taskForm = document.createElement("form");
             var taskNameLabel = document.createElement("label");
-            var taskNameEntry = document.createElement("");
-            taskNameLabel.textContent = "Task Name";
+            var taskNameInput = document.createElement("input");
             
-            taskEntryContainerLeft.appendChild(taskFormDiv);
+            taskForm.id = currentTaskId + "formLeft";
+            taskForm.classList.toggle('clickedForm');
+
+            taskNameInput.type = "text";
+            taskNameInput.id = currentTaskId + "inputLeft";
+
+            taskNameLabel.textContent = "Task Name";
+            taskNameLabel.setAttribute("for", taskNameInput.id);
+            
+
+            taskForm.appendChild(taskNameLabel);
+            taskForm.appendChild(taskNameInput);
+            taskEntryContainerLeft.appendChild(taskForm);
+        }
+
+        this.hideForms();
+    }
+        
+    hideForms() {
+        for (var x=1;x<=5;x++) {
+            console.log("x", this.tab);
+            let thisFormId = this.tab + "formLeft";
+            let thisForm = document.getElementById(thisFormId);
+
+            let formId = "tab" + String(x) +"formLeft";
+            let form = document.getElementById(formId);
+
+            console.log("form", thisFormId, formId, x);
+
+            //while (!thisForm.classList.contains("showForm") && thisForm.classList.contains("clickedForm")) {
+            if (form.classList.contains("clickedForm") && thisFormId !== formId) {
+                console.log("hide");
+                form.classList.toggle('showForm');
+            }
+                
+            //    form.classList.toggle('showForm');
+            //}
+
+            /*if (document.getElementById(form).classList.contains('clickedForm')) {
+                //document.getElementById(currentTaskId).classList.toggle('showForm');
+                console.log("clickedform",form.classList.contains("clickedForm"))
+            }*/
+            
+
         }
         
+        
+        //var form = document.getElementById
+    }
 
+    formExists(formId) {
+        var form = document.getElementById(formId);
+        
+        if (form) {
+            return true;
+        }
     }
 }
 
@@ -67,11 +122,17 @@ function buttonPressed(tab) {
     
     if (!tabClicked.classList.contains('clicked')) {
         tabClicked.classList.toggle('clicked');
+        console.log("tabClicked", tabClicked);
     }
 
-    for (var id=1;id <= 5;id++) {
+    // Check how many tabs the user selected
+    var taskAmount = document.getElementById("taskEntryNav").children.length;
+
+    // Loop through all the open tabs and check which one was clicked and toggle colored underline
+    for (var id=1;id <= taskAmount;id++) {
         var tabID = "tab"+String(id);
-        var currentTab = document.getElementById(tabID);            
+        var currentTab = document.getElementById(tabID); 
+    
         if (currentTab.classList.contains('clicked') && tabClicked !== currentTab) {
             currentTab.classList.toggle('clicked');
         }
@@ -113,6 +174,7 @@ function createTaskNavBar(amount) {
         if (amount < tabLength) {                        
             var elem = document.getElementById('tab'+String(tabLength));
             elem.parentNode.removeChild(elem);
+            console.log("ELEM", elem)
             
         }
 
