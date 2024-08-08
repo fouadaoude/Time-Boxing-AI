@@ -24,12 +24,11 @@ class Task {
         //document.querySelector('.myClassName').id
 
         var formId = currentTaskId + "formLeft";        
+        //if(this.formExists(formId)) {
 
-        if (this.tab && this.formExists(formId)) {
-            document.getElementById(formId).classList.toggle('showForm');
-        }
+        //}
 
-        else if (this.tab && !this.formExists(formId)) {                        
+        if (this.tab && !this.formExists(formId)) {                        
             var taskForm = document.createElement("form");
             var taskNameLabel = document.createElement("label");
             var taskNameInput = document.createElement("input");
@@ -53,21 +52,28 @@ class Task {
     }
         
     hideForms() {
-        for (var x=1;x<=5;x++) {
-            console.log("x", this.tab);
+        var formSize = document.getElementById("taskEntryNav").children.length;
+
+        for (var x=1;x<=formSize;x++) {
             let thisFormId = this.tab + "formLeft";
             let thisForm = document.getElementById(thisFormId);
 
             let formId = "tab" + String(x) +"formLeft";
             let form = document.getElementById(formId);
-
-            console.log("form", thisFormId, formId, x);
-
-            //while (!thisForm.classList.contains("showForm") && thisForm.classList.contains("clickedForm")) {
-            if (form.classList.contains("clickedForm") && thisFormId !== formId) {
-                console.log("hide");
-                form.classList.toggle('showForm');
+            
+            while (form !== thisForm) {
+                form.classList.toggle("showForm");
             }
+
+            console.log("form", form, thisForm);
+            
+            
+            //if (formId !== thisFormId)
+            //while (!thisForm.classList.contains("showForm") && thisForm.classList.contains("clickedForm")) {
+            //if (form.classList.contains("clickedForm") && thisFormId !== formId) {
+            //    console.log("form", thisFormId, formId, x);
+            //    form.classList.toggle('showForm');
+            //}
                 
             //    form.classList.toggle('showForm');
             //}
@@ -174,7 +180,6 @@ function createTaskNavBar(amount) {
         if (amount < tabLength) {                        
             var elem = document.getElementById('tab'+String(tabLength));
             elem.parentNode.removeChild(elem);
-            console.log("ELEM", elem)
             
         }
 
@@ -189,8 +194,9 @@ function createTaskNavBar(amount) {
             taskEntryNav.appendChild(newTab);         
         }
 
-    }        
-
+    }    
+    
+    buttonPressed("tab1");
 }
 
 
