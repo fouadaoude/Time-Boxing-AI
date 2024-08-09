@@ -22,7 +22,7 @@ class Task {
 
         // Check is current tab clicked does not already have values. If values exist. Keep them.
         //document.querySelector('.myClassName').id
-
+        console.log(this.tab, "THISSS");
         var formId = currentTaskId + "formLeft";        
                       
 
@@ -51,35 +51,42 @@ class Task {
     }
         
     hideForms() {
-        var formSize = document.getElementById("taskEntryNav").children.length;        
-        for (var x=1;x<formSize;x++) {
-            let thisFormId = this.tab + "formLeft";
-            let thisForm = document.getElementById(thisFormId);
+        var formSize = document.getElementById("taskEntryNav").children.length;      
+        var x = 1;  
+        let formAmount = countFormByClass("clickedForm");
+        
+        var thisFormId = this.tab + "formLeft";
+        var thisForm = document.getElementById(thisFormId);
 
-            let formId = "tab" + String(x) +"formLeft";
-            formId = String(formId);
-            let form = document.getElementById(formId);
+        var formId = "tab" + String(x) +"formLeft";
+        formId = String(formId);
+        var form = document.getElementById(formId);            
+
+        while (formAmount > 1 || form === thisForm) {            
+            formAmount = countFormByClass("clickedForm");
             
+            thisFormId = this.tab + "formLeft";
+            thisForm = document.getElementById(thisFormId);
 
+            formId = "tab" + String(x) +"formLeft";
+            formId = String(formId);
+            form = document.getElementById(formId);            
+
+            console.log("formAmount", countId());
+            
             if (form) {
-                if (form !== thisForm && form.classList.contains("clickedForm")) {
-                    console.log("THIS TAB",this.tab, "form", form);
-                    form.classList.toggle("clickedForm");
-                    form.classList.toggle("showForm");                
-                }      
+                if (form === thisForm) {
+                    form.classList.remove("showForm");
+                    form.classList.add("clickedForm");
+                }                
                 
-                if (form === thisForm && form.classList.contains("showForm")) {
-                    console.log("acTIVINGATIN");
-                    form.classList.toggle("showForm");                
-                    form.classList.toggle("clickedForm");
-                    
-                }      
+                else if (formAmount > 1 && form !== thisForm) {
+                    form.classList.remove("clickedForm");
+                    form.classList.add("showForm");                                           
+                }
             }
-
+            x+=1;       
         }
-        
-        
-        //var form = document.getElementById
     }
 
     formExists(formId) {
@@ -192,9 +199,14 @@ function createTaskNavBar(amount) {
     }    
     
     buttonPressed("tab1");
-    new Task("tab1").create();
+    new Task(amount).create();
 }
 
+function countFormByClass(form) {
+    var formAmount = document.getElementsByClassName(form).length;
+
+    return formAmount;
+}
 
 function countId() {
     var count = $("a[id*='tab']").length;
