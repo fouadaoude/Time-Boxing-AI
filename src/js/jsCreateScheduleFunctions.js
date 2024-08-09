@@ -11,6 +11,36 @@ class Task {
         //this.taskTime = taskTime;
     }
 
+    createTest() {
+        var taskEntryContainerLeft = document.getElementById('taskEntryContainerLeft');
+        var taskCount = 1;
+
+        while (this.tab >= taskCount) {
+            var taskForm = document.createElement("form");
+            var taskNameLabel = document.createElement("label");
+            var taskNameInput = document.createElement("input");
+            var currentTaskId = "tab" + String(taskCount);
+
+
+            taskForm.id = currentTaskId + "formLeft";
+            taskForm.classList.toggle('clickedForm');
+
+            taskNameInput.type = "text";
+            taskNameInput.id = currentTaskId + "inputLeft";
+
+            taskNameLabel.textContent = "Task Name";
+            taskNameLabel.setAttribute("for", taskNameInput.id);
+
+            taskForm.appendChild(taskNameLabel);
+            taskForm.appendChild(taskNameInput);
+            taskEntryContainerLeft.appendChild(taskForm);
+
+            taskCount += 1;
+        }
+
+        this.hideForms();
+    }
+
     create() {
         let taskEntryNav = document.getElementById('taskEntryNav');
         let taskEntryContainerLeft = document.getElementById('taskEntryContainerLeft');
@@ -22,7 +52,6 @@ class Task {
 
         // Check is current tab clicked does not already have values. If values exist. Keep them.
         //document.querySelector('.myClassName').id
-        console.log(this.tab, "THISSS");
         var formId = currentTaskId + "formLeft";        
                       
 
@@ -46,16 +75,12 @@ class Task {
             taskForm.appendChild(taskNameInput);
             taskEntryContainerLeft.appendChild(taskForm);
         }
-
-        this.hideForms();
+        
     }
         
-    hideForms() {
-        var formSize = document.getElementById("taskEntryNav").children.length;      
-        var x = 1;  
+    hideForms() {  
+        // hideForms() is currently broken and needs overhaul. Friday 8/9 6:16am
         let formAmount = countFormByClass("clickedForm");
-        
-        var thisFormId = this.tab + "formLeft";
         var thisForm = document.getElementById(thisFormId);
 
         var formId = "tab" + String(x) +"formLeft";
@@ -71,8 +96,6 @@ class Task {
             formId = "tab" + String(x) +"formLeft";
             formId = String(formId);
             form = document.getElementById(formId);            
-
-            console.log("formAmount", countId());
             
             if (form) {
                 if (form === thisForm) {
@@ -199,7 +222,7 @@ function createTaskNavBar(amount) {
     }    
     
     buttonPressed("tab1");
-    new Task(amount).create();
+    new Task(amount).createTest();
 }
 
 function countFormByClass(form) {
